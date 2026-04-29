@@ -114,7 +114,27 @@ class Flatw0waCDMModel(BaseCosmologyModel):
         return cosmo.distmod(zs).value
 
 class MatterOnlyModel(BaseCosmologyModel):
-    """"""
+    """Matter only universe (Om_l = 0, curvature allowed)"""
+    def __init__(self):
+        self.name = 'MatterOnly'
+        self.param_names = ['Hubble Constant', 'Matter Density Parameter']
+        self.param_symbols = ["$H_0$", "$\Omega_m$"]
+        self.ndim = 2
+
+    def ln_prior(self, params):
+        H_0, Om_m = params
+        
+        if H_0 <= 0:
+            return -np.inf
+        if Om_m < 0:
+            return -np.inf
+        
+        return 0
+
+    def mu_model(self, params, sz):
+        H_0, Om_m = params
+        cosmo = LambdaCDM(H0=H_0, Om0=Om_m, Ode0=0.0)
+        return cosmo.distmod(sz).value
 
 class EdSModel(BaseCosmologyModel):
     """Flat, matter-only universe, Om_m=1, Om_l=0, Om_k=0"""
